@@ -8,9 +8,7 @@ public class ArithmeticGame extends JFrame {
     private JTextField num1Field, num2Field, operatorLabel, userInputField;
     private JButton submitButton, cancelButton, nextButton;
     private JLabel messageLabel, scrollingLabel, correctLabel, incorrectLabel;
-    private JRadioButton addButton, subButton, mulButton, divButton;
-    private JRadioButton level1Button, level2Button, level3Button;
-    private ButtonGroup operatorGroup, levelGroup;
+    private JComboBox<String> operatorComboBox, levelComboBox;
     private int num1, num2, correctAnswer;
     private String selectedOperator;
     private Random random = new Random();
@@ -31,38 +29,18 @@ public class ArithmeticGame extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        // Panel 3: Radio buttons for operator and level
+        // Panel 3: Combo boxes for operator and level
         panel3 = new JPanel();
         panel3.setBorder(BorderFactory.createTitledBorder("Settings"));
-        panel3.setLayout(new GridLayout(2, 4));
+        panel3.setLayout(new GridLayout(2, 2));
 
-        operatorGroup = new ButtonGroup();
-        addButton = new JRadioButton("Addition (+)", true);
-        subButton = new JRadioButton("Subtraction (-)");
-        mulButton = new JRadioButton("Multiplication (*)");
-        divButton = new JRadioButton("Division (/)");
-        operatorGroup.add(addButton);
-        operatorGroup.add(subButton);
-        operatorGroup.add(mulButton);
-        operatorGroup.add(divButton);
-
-        levelGroup = new ButtonGroup();
-        level1Button = new JRadioButton("Level 1 (1-100)", true);
-        level2Button = new JRadioButton("Level 2 (100-200)");
-        level3Button = new JRadioButton("Level 3 (200-300)");
-        levelGroup.add(level1Button);
-        levelGroup.add(level2Button);
-        levelGroup.add(level3Button);
+        operatorComboBox = new JComboBox<>(new String[]{"Addition (+)", "Subtraction (-)", "Multiplication (*)", "Division (/)", "Modulo (%)"});
+        levelComboBox = new JComboBox<>(new String[]{"Level 1 (1-100)", "Level 2 (100-200)", "Level 3 (200-300)"});
 
         panel3.add(new JLabel("Operator:"));
-        panel3.add(addButton);
-        panel3.add(subButton);
-        panel3.add(mulButton);
-        panel3.add(divButton);
+        panel3.add(operatorComboBox);
         panel3.add(new JLabel("Level:"));
-        panel3.add(level1Button);
-        panel3.add(level2Button);
-        panel3.add(level3Button);
+        panel3.add(levelComboBox);
 
         // Panel 1: Display numbers, operator, input field, buttons, and scoreboard labels
         panel1 = new JPanel();
@@ -72,20 +50,20 @@ public class ArithmeticGame extends JFrame {
         num1Field = new JTextField(5);
         num1Field.setEditable(false);
         num1Field.setHorizontalAlignment(JTextField.CENTER);
-        num1Field.setFont(new Font("Arial", Font.BOLD, 20));
+        num1Field.setFont(new Font("Arial", Font.BOLD, 30));
 
         operatorLabel = new JTextField(3);
         operatorLabel.setEditable(false);
         operatorLabel.setHorizontalAlignment(JTextField.CENTER);
-        operatorLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        operatorLabel.setFont(new Font("Arial", Font.BOLD, 25));
 
         num2Field = new JTextField(5);
         num2Field.setEditable(false);
         num2Field.setHorizontalAlignment(JTextField.CENTER);
-        num2Field.setFont(new Font("Arial", Font.BOLD, 20));
+        num2Field.setFont(new Font("Arial", Font.BOLD, 30));
 
         userInputField = new JTextField(10);
-        userInputField.setFont(new Font("Arial", Font.PLAIN, 16));
+        userInputField.setFont(new Font("Arial", Font.PLAIN, 25));
 
         submitButton = new JButton("Submit");
         cancelButton = new JButton("Cancel");
@@ -170,9 +148,10 @@ public class ArithmeticGame extends JFrame {
     private void generateProblem() {
         // Determine range based on level
         int min = 1, max = 100;
-        if (level2Button.isSelected()) {
+        String selectedLevel = (String) levelComboBox.getSelectedItem();
+        if ("Level 2 (100-200)".equals(selectedLevel)) {
             min = 100; max = 200;
-        } else if (level3Button.isSelected()) {
+        } else if ("Level 3 (200-300)".equals(selectedLevel)) {
             min = 200; max = 300;
         }
 
@@ -180,16 +159,17 @@ public class ArithmeticGame extends JFrame {
         num2 = random.nextInt(max - min + 1) + min;
 
         // Determine operator
-        if (addButton.isSelected()) {
+        String selectedOp = (String) operatorComboBox.getSelectedItem();
+        if ("Addition (+)".equals(selectedOp)) {
             selectedOperator = "+";
             correctAnswer = num1 + num2;
-        } else if (subButton.isSelected()) {
+        } else if ("Subtraction (-)".equals(selectedOp)) {
             selectedOperator = "-";
             correctAnswer = num1 - num2;
-        } else if (mulButton.isSelected()) {
+        } else if ("Multiplication (*)".equals(selectedOp)) {
             selectedOperator = "*";
             correctAnswer = num1 * num2;
-        } else if (divButton.isSelected()) {
+        } else if ("Division (/)".equals(selectedOp)) {
             selectedOperator = "/";
             int attempts = 0;
             do {
@@ -201,6 +181,21 @@ public class ArithmeticGame extends JFrame {
                 attempts++;
             } while (num2 == 0 || num1 % num2 != 0 || num2 == num1);
             correctAnswer = num1 / num2;
+        } else if ("Modulo (%)".equals(selectedOp)) {
+            selectedOperator = "%";
+            // Ensure num2 != 0
+            while (num2 == 0) {
+                num2 = random.nextInt(max - min + 1) + min;
+            }
+            correctAnswer = num1 % num2;
+        }
+
+        // For subtraction, ensure num1 > num2
+        if (selectedOperator.equals("-") && num1 < num2) {
+            int temp = num1;
+            num1 = num2;
+            num2 = temp;
+            correctAnswer = num1 - num2; // Recalculate after swap
         }
 
         num1Field.setText(String.valueOf(num1));
