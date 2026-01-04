@@ -1,0 +1,104 @@
+================================================================================
+        BARANGAY HEALTH CENTER MANAGEMENT SYSTEM - CLASS HIERARCHY DIAGRAM
+================================================================================
+
+                                    ┌─────────────┐
+                                    │   Object    │
+                                    └──────┬──────┘
+                                           │
+                ┌──────────────────────────┼──────────────────────────┐
+                │                          │                          │
+                │                          │                          │
+    ┌───────────▼────────────┐  ┌─────────▼──────────┐   ┌──────────▼─────────┐
+    │    UIComponent         │  │   DomainModel     │   │  UtilityClass      │
+    │   (Abstract)           │  │  (Abstract)        │   │  (Concrete)        │
+    └───────────┬────────────┘  └─────────┬──────────┘   │                    │
+                │                         │              │                    │
+    ┌───────────┴────────────────┬────────┴────────┐     └────────────────────┘
+    │                            │                │
+    │                     ┌──────▼─────┐   ┌─────▼───────┐
+    │                     │  User      │   │  Document   │
+    │                     │ (Abstract) │   │ (Abstract)  │
+    │                     └──────┬─────┘   └─────┬───────┘
+    │                            │               │
+    │            ┌───────────────┼───────────────┼───────────────┐
+    │            │               │               │               │
+    │     ┌──────▼──────┐ ┌─────▼──────┐ ┌─────▼────────┐ ┌────▼────────┐
+    │     │  Patient    │ │   Admin    │ │   Staff      │ │ Appointment │
+    │     │ (Concrete)  │ │ (Concrete) │ │ (Concrete)   │ │ (Concrete)  │
+    │     └─────────────┘ └────────────┘ └──────────────┘ └─────────────┘
+    │
+    │     ┌─────────────────────────────┬──────────────────────────────┐
+    │     │                             │                              │
+    ├─────▼──────────┬──────────────────▼────────┬─────────────────────▼──────────┐
+    │                │                           │                               │
+    │        ┌──────▼────────┐          ┌───────▼────────┐            ┌─────────▼────────┐
+    │        │  LoginScreen  │          │PatientDashboard│            │  AdminDashboard  │
+    │        │  (Concrete)   │          │  (Concrete)    │            │   (Concrete)     │
+    │        └───────────────┘          └────────────────┘            └──────────────────┘
+    │
+    │        ┌─────────────────────────────────────────────────────────┐
+    │        │                                                         │
+    ├────────▼─────────┬────────────────────────┬──────────────────────▼──────┐
+    │                  │                        │                             │
+    │         ┌────────▼──────────┐  ┌─────────▼──────┐        ┌─────────────▼────────┐
+    │         │  StaffDashboard   │  │AppointmentMgr  │        │  BillingRecordForm   │
+    │         │  (Concrete)       │  │  (Concrete)    │        │    (Concrete)        │
+    │         └───────────────────┘  └────────────────┘        └──────────────────────┘
+    │
+    │         ┌──────────────────────────────────────────────────────┐
+    │         │                                                      │
+    └─────────▼───────────────┬───────────────┬──────────────────────▼────────────┐
+                              │               │                                  │
+                    ┌─────────▼────────┐ ┌───▼──────────┐          ┌────────────▼────────┐
+                    │PatientProfileEdt │ │ContactInfo   │          │HealthPersonnelDir   │
+                    │  (Concrete)      │ │ (Concrete)   │          │   (Concrete)        │
+                    └──────────────────┘ └──────────────┘          └─────────────────────┘
+
+                              ┌──────────────────────────┐
+                              │  Utility Classes         │
+                              └──────────────────────────┘
+                                      │
+                          ┌───────────┴────────────┐
+                          │                        │
+                 ┌────────▼────────┐    ┌────────▼─────────┐
+                 │ DatabaseHelper  │    │SimpleProfileEdt  │
+                 │  (Concrete)     │    │  (Concrete)      │
+                 └─────────────────┘    └──────────────────┘
+
+================================================================================
+                            HIERARCHY BREAKDOWN
+================================================================================
+
+1. UIComponent (Abstract Base Class)
+   └─ Represents all GUI components that inherit from JFrame
+   └─ Contains common UI constants, initialization logic
+
+2. DomainModel (Abstract Base Class)
+   └─ Represents business domain entities
+   ├─ User (Abstract)
+   │  ├─ Patient (Concrete)
+   │  ├─ Admin (Concrete)
+   │  └─ Staff (Concrete)
+   └─ Document (Abstract)
+      └─ Appointment (Concrete)
+
+3. UtilityClass (Concrete)
+   └─ Helper and tool classes for database and utility operations
+
+4. UI Component Hierarchy (extends UIComponent)
+   ├─ LoginScreen
+   ├─ PatientDashboard
+   ├─ AdminDashboard
+   ├─ StaffDashboard
+   ├─ AppointmentManager
+   ├─ BillingRecordForm
+   ├─ PatientProfileEditor
+   ├─ ContactInformation
+   └─ HealthPersonnelDirectory
+
+5. Utility Classes
+   ├─ DatabaseHelper (Database operations)
+   └─ SimpleProfileEditor (Profile editing utilities)
+
+================================================================================
