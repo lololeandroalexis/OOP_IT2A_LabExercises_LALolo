@@ -162,4 +162,180 @@ Example flow:
 ## 6) `addHandlerDelete(handler)`
 
 ```js
- 
+  addHandlerDelete(handler) {
+    this._parentElement.addEventListener('click', e => {
+      const btn = e.target.closest('.btn-delete');
+      if (!btn) return;
+      if (!confirm('Are you sure you want to delete this renter?')) return;
+      handler(Number(btn.closest('.renter').dataset.id));
+    });
+  }
+```
+
+### What it does
+
+This method adds a delete button click handler with a confirmation prompt.
+
+#### Step by step
+
+1. It listens to clicks on the renter list container
+2. It checks whether the click came from `.btn-delete`
+3. If the click is not from delete, it does nothing
+4. It shows a confirmation popup:
+   - `confirm('Are you sure you want to delete this renter?')`
+5. If the user cancels, the function exits and nothing is deleted
+6. If the user confirms, it reads the renter ID from the closest `.renter` row and calls the `handler`
+
+### Why this matters
+
+This makes the delete action safe by preventing accidental deletion without confirmation.
+
+---
+
+## 7) `_generateMarkup()`
+
+```js
+  _generateMarkup() {
+    if (this._data.length === 0) {
+      return '<li class="empty">No renters yet. Click Rent Now on a car to add one.</li>';
+    }
+
+    return this._data
+      .map(renter => {
+        // Old saved renters may have no day count, so only show it when there is one
+        const days = renter.days ? ` (${renter.days} ${renter.days === 1 ? 'day' : 'days'})` : '';
+        const dates = renter.hasDates
+          ? `${formatDate(renter.startDate)} – ${formatDate(renter.endDate)}${days}`
+          : 'No dates';
+
+        return `
+          <li class="renter" data-id="${renter.id}">
+            <span class="avatar" aria-hidden="true">${initials(renter.name)}</span>
+            <div class="renter-body">
+              <div class="renter-top">
+                <strong class="renter-name">${renter.name}</strong>
+                <span class="badge badge-${renter.status.toLowerCase()}">${renter.status}</span>
+              </div>
+              <span class="renter-meta">${CAR_ICON} ${renter.carName}${renter.carPlate ? ` (${renter.carPlate})` : ''}</span>
+              <span class="renter-meta">${CALENDAR_ICON} ${dates}</span>
+              <div class="renter-bottom">
+                <span class="renter-fee">${formatPeso(renter.fee)}</span>
+                <div class="renter-actions">
+                  <button type="button" class="btn btn-outline btn-sm btn-edit">${PENCIL_ICON} Edit</button>
+                  <button type="button" class="btn btn-danger btn-sm btn-delete">${TRASH_ICON} Delete</button>
+                </div>
+              </div>
+            </div>
+          </li>`;
+      })
+      .join('');
+  }
+```
+
+This is the main rendering method.
+
+### Part 1: empty state
+
+```js
+if (this._data.length === 0) {
+  return '<li class="empty">No renters yet. Click Rent Now on a car to add one.</li>';
+}
+```
+
+If the model has no renters, the view renders a friendly empty list item instead of a blank area.
+
+### Part 2: formatting the rental date string
+
+```js
+const days = renter.days ? ` (${renter.days} ${renter.days === 1 ? 'day' : 'days'})` : '';
+const dates = renter.hasDates
+  ? `${formatDate(renter.startDate)} – ${formatDate(renter.endDate)}${days}`
+  : 'No dates';
+```
+
+This code builds a readable date string.
+
+- If `renter.days` exists, it appends something like ` (3 days)`
+- If `renter.hasDates` is true, it shows the date range
+- Otherwise it shows `No dates`
+
+This is helpful because older saved renters may not include all day-count information.
+
+### Part 3: generating each renter row
+
+```js
+return `
+  <li class="renter" data-id="${renter.id}">
+    <span class="avatar" aria-hidden="true">${initials(renter.name)}</span>
+    <div class="renter-body">
+      <div class="renter-top">
+        <strong class="renter-name">${renter.name}</strong>
+        <span class="badge badge-${renter.status.toLowerCase()}">${renter.status}</span>
+      </div>
+      <span class="renter-meta">${CAR_ICON} ${renter.carName}${renter.carPlate ? ` (${renter.carPlate})` : ''}</span>
+      <span class="renter-meta">${CALENDAR_ICON} ${dates}</span>
+      <div class="renter-bottom">
+        <span class="renter-fee">${formatPeso(renter.fee)}</span>
+        <div class="renter-actions">
+          <button type="button" class="btn btn-outline btn-sm btn-edit">${PENCIL_ICON} Edit</button>
+          <button type="button" class="btn btn-danger btn-sm btn-delete">${TRASH_ICON} Delete</button>
+        </div>
+      </div>
+    </div>
+  </li>`;
+```
+
+This builds each renter row as HTML.
+
+Key pieces:
+
+- `data-id="${renter.id}"` stores the renter’s unique id in the DOM for later button click handling
+- `.avatar` displays the generated initials from the renter name
+- `.renter-name` shows the renter’s full name
+- `.badge-badgestatus` uses the status to apply a CSS class such as active, pending, or completed
+- `CAR_ICON` and `CALENDAR_ICON` show the car and date metadata
+- `formatPeso(renter.fee)` displays the rental fee in a formatted currency string
+- The two buttons have classes `btn-edit` and `btn-delete` so the event handlers know which button was clicked
+
+### Part 4: joining all rows
+
+```js
+      })
+      .join('');
+```
+
+- `.map(...)` produces an array of HTML strings
+- `.join('')` merges them into one big markup string
+- This is then inserted into the DOM by the base `View` class or a render method elsewhere in the app
+
+---
+
+## 8) Export
+
+```js
+export default new RentersListView();
+```
+
+This creates one instance of the view and exports it as the default value.
+
+That means other files can import it like this:
+
+```js
+import rentersListView from './views/RentersListView.js';
+```
+
+In practice, that singleton instance is reused across the app so the UI updates from the same object instead of creating duplicates.
+
+---
+
+## Summary
+
+This file is a classic simple view layer:
+
+- it knows how to read the list data
+- it formats it for display
+- it renders the HTML with icons, date info, and actions
+- it listens for click events on edit/delete buttons
+- it keeps row data attached via `data-id` so later handlers can work with the correct renter
+
+In short, it is the UI representation of the renter list and the bridge between the visual list and the app’s controller logic.
